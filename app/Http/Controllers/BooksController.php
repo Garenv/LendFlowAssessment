@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use http\Env\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-use function PHPUnit\Framework\isJson;
 
 class BooksController extends Controller
 {
@@ -34,6 +32,7 @@ class BooksController extends Controller
             }
 
             return $response;
+
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             throw new \Exception($e->getMessage(), $e->getCode(), $e);
@@ -50,6 +49,7 @@ class BooksController extends Controller
             $author = $request->get('author');
             $title = $request->get('title');
             $isbn = $request->get('isbn');
+            $offSet = $request->get('offset');
 
             $validationStatus = $this->validation($request);
 
@@ -75,7 +75,11 @@ class BooksController extends Controller
             $response = Http::get($nytBooksEndpoint, $queryParams);
             $results = $response->json();
 
+            $collection = collect($results);
+            $outputs = $collection->chunk(20)[$offSet];
+
             return $results;
+
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             throw new \Exception($e->getMessage(), $e->getCode(), $e);
