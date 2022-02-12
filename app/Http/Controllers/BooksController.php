@@ -44,12 +44,12 @@ class BooksController extends Controller
     {
 
         try {
-            $apiKey = env('API_KEY');
+            $apiKey           = env('API_KEY');
             $nytBooksEndpoint = env('NYT_BOOKS_ENDPOINT');
-            $author = $request->get('author');
-            $title = $request->get('title');
-            $isbn = $request->get('isbn');
-            $offSet = $request->get('offset');
+            $author           = $request->get('author');
+            $title            = $request->get('title');
+            $isbn             = $request->get('isbn');
+            $offSet           = $request->get('offset');
 
             $validationStatus = $this->validation($request);
 
@@ -57,26 +57,29 @@ class BooksController extends Controller
                 return response()->json(['status' => 'Field validation has failed!'], 404);
             }
 
-            $keysArray = ['isbn10', 'isbn13'];
-            $valuesArray = explode(';', $isbn);
-            $queryArray = [];
+            $keysArray       = ['isbn10', 'isbn13'];
+            $valuesArray     = explode(';', $isbn);
+            $queryArray      = [];
 
             foreach ($valuesArray as $i => $value) {
                 $queryArray[$keysArray[$i]] = $value;
             }
 
             $queryParams = [
-                'api-key' => $apiKey,
-                'author' => $author,
-                'title' => $title,
-                'isbn' => [(object) $queryArray]
+                'api-key'    => $apiKey,
+                'author'     => $author,
+                'title'      => $title,
+//                'offset'     => $offSet,
+                'isbn'       => [(object) $queryArray] // empties the results when this key value is here for some reason
             ];
 
-            $response = Http::get($nytBooksEndpoint, $queryParams);
-            $results = $response->json();
+            dd($queryParams);
 
-            $collection = collect($results);
-            $outputs = $collection->chunk(20)[$offSet];
+            $response        = Http::get($nytBooksEndpoint, $queryParams);
+            $results         = $response->json();
+
+            $collection      = collect($results);
+            $outputs         = $collection->chunk(20)[$offSet];
 
             return $results;
 
