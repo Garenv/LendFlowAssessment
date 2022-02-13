@@ -15,7 +15,7 @@ class BooksController extends Controller
         try {
             $response = [
                 'status'    => 'failed',
-                'message'   => 'Defective query param deteted!'
+                'message'   => 'Defective query param detected!'
             ];
 
             $validation     = Validator::make($request->all(), [
