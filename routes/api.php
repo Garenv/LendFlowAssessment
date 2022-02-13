@@ -18,4 +18,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/1/nyt/best-sellers', [BooksController::class, 'index']);
+Route::get('/1/nyt/best-sellers', [BooksController::class, 'index'])->name('best_sellers_uri');
