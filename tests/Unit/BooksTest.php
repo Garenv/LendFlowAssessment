@@ -12,18 +12,17 @@ class BooksTest extends TestCase
     {
         Http::fake();
 
-        // Change or remove any keys.
-        // To test properly, change the values of the keys to valid values consistent with the api response.
+        // Change the values of the keys to valid values consistent with the api response.
         Http::get(route('best_sellers_uri'), [
 //            'author' => 'David Adams Richards',
 //            'isbn' => '0671003542',
 //            'title' => '#ASKGARYVEE',
-            'offset' => 19
+            'offset' => 20
         ]);
 
         Http::assertSent(function (Request $request) {
             // Make sure the return value is consistent with the variables value that's defined in Http::get(...) above
-            return $request['offset'] == 19;
+            return $request['offset'] == 20;
         });
     }
 }
