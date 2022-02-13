@@ -8,6 +8,7 @@ use Tests\TestCase;
 class BooksTest extends TestCase
 {
 
+    // Test works without internet connection
     public function test_nyt_books_api()
     {
         Http::fake();
@@ -21,9 +22,10 @@ class BooksTest extends TestCase
         ]);
 
         Http::assertSent(function (Request $request) {
-            // Make sure the return value is consistent with the variables value that's defined in Http::get(...) above
+            // Make sure the return value is consistent with the variable's value that's being tested in Http::get(...) above
             return $request['offset'] == 20;
         });
+
     }
 }
 

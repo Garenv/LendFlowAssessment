@@ -15,18 +15,18 @@ class BooksController extends Controller
         try {
             $response = [
                 'status'    => 'failed',
-                'message'   => 'one of the fields are incorrect!'
+                'message'   => 'Defective query param deteted!'
             ];
 
             $validation     = Validator::make($request->all(), [
-                'author'    => 'string',
+                'author'    => ['string','regex:/^[a-z][a-z\s]*$/i'], // Regex that only allows letters along with spaces (first name and last name of authors).  Numbers or other special chars will be rejected.
                 'isbn'      => ['numeric','regex:/^(\d{10}|\d{13})$/'], // Regex only allowing 10 or 13 digits.
                 'title'     => 'string|regex:/^[A-Z@~`!@#$%^*()_=+\\\';:\/?>.,-]/i', // Regex to allow alphabet and special characters for title because some titles have the "#" symbol.
-                'offset'    => 'numeric'
+                'offset'    => ['numeric','regex:/^-?\d*[020]$/'] // Regex to allow only multiples of 20.
             ]);
 
             if(!$validation->fails()) {
-                return [
+                $response = [
                     'status'  => 'success',
                     'message' => 'Fields successfully validated!'
                 ];
@@ -54,25 +54,20 @@ class BooksController extends Controller
 
             $validationStatus = $this->validation($request);
 
-            if($offSet % 20 != 0) {
-                return [
-                    'status'    => 'failed',
-                    'message'   => 'offset is not a multiple of 20!'
-                ];
-            }
-
-            // The NYT endpoint is defective in terms of isbns.
+            // The NYT endpoint's defective in terms of isbns.
             // It doesn't accept isbns that are semicolon separated.
             // It only accepts one value at a time.
+            // For example: https://api.nytimes.com/svc/books/v3/lists/best-sellers/history.json?api-key=yourApiKey&isbn=0871404427;9780871404428 won't work.
             // This is how I would've done it if their API worked properly.
-            /*
-            $keysArray       = ['isbn10', 'isbn13'];
-            $valuesArray     = explode(';', $isbn);
-            $queryArray      = [];
 
-            foreach ($valuesArray as $i => $value) {
-                $queryArray[$keysArray[$i]] = $value;
-            }
+            /*
+                $keysArray       = ['isbn10', 'isbn13'];
+                $valuesArray     = explode(';', $isbn);
+                $queryArray      = [];
+
+                foreach ($valuesArray as $i => $value) {
+                    $queryArray[$keysArray[$i]] = $value;
+                }
             */
 
             if($validationStatus['status'] == "failed") {
@@ -85,6 +80,7 @@ class BooksController extends Controller
                 'title'      => $title,
                 'offset'     => $offSet,
                 'isbn'       => $isbn
+              // 'isbn'       => [(object) $queryArray] // It would've looked like this: [{"isbn10":"0670022632", "isbn13":"9780670022632"}]]
             ];
 
             $response        = Http::get($nytBooksEndpoint, $queryParams);
